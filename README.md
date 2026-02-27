@@ -1,148 +1,118 @@
 # Titan Code
 
-![Titan Code Logo](https://via.placeholder.com/800x200.png?text=Titan+Code+-+Your+AI+Workforce+Agent)  
-*(Replace this placeholder with your actual logo once generated – something epic with a titan + terminal vibe)*
+![Titan Code](assets/logo.png)
 
-**Titan Code** is an open-source terminal-based AI agent that goes beyond coding. Switch between **50+ job roles** (Software Engineer, Product Manager, UX Designer, Data Analyst, Marketer, and more) to build your virtual startup team.
+# Titan Code ⚡
 
-Forked from the awesome [OpenCode](https://github.com/anomalyco/opencode) and enhanced with role-switching superpowers. Perfect for solo founders, bootstrapped teams, or anyone who needs an AI that can wear multiple hats.
+**The open-source terminal AI agent with job roles for your virtual startup team.**
 
-### Why Titan Code?
+Born from a fork of [OpenCode](https://github.com/anomalyco/opencode), Titan Code is what happens when you give an AI coding assistant the ability to switch personas. Need a Product Manager to brainstorm features? A UX Designer to map out user flows? A Data Analyst to dig into your metrics? Titan Code does it all—with strict boundaries so each role stays in its lane.
 
-- **Role Switching**: Use `/role software_engineer` for full coding power, `/role product_manager` for planning and research (with safe tools only), and so on.
-- **Strict Boundaries**: Ask something outside the current role? It rejects and tells you to switch – keeps things professional and focused.
-- **BYOK Everything**: Bring your own keys for any model (Claude, Gemini, Grok, OpenAI, local Ollama) + tools like web search.
-- **Startup-Friendly**: Non-coding roles get useful tools (web search, planning outputs) without risky file edits.
-- **100% Open Source**: No lock-in, runs locally, privacy-first.
+The red/black cyber-titan theme? Yeah, we went there. 😈
 
-Early stage project – actively building more roles, smarter tool permissions, and weak-model optimizations.
+---
 
-### Installation
+## Why Titan Code?
+
+- **Role Switching on Steroids**: `/role product_manager` for planning, `/role ux_designer` for research, `/role data_analyst` for insights. Switch roles mid-convo and the AI immediately adapts its personality, prompts, and—most importantly—its tool permissions.
+- **Strict Boundaries**: Product Manager literally can't edit your code—because we said so. Ask for something outside your role? It'll reject the request and tell you to switch. Professional. Focused. No accidents.
+- **BYOK Everything**: Bring your own keys for Claude, Gemini, Grok, OpenAI, Ollama, or any OpenAI-compatible endpoint. Not tied to any provider.
+- **Startup-Friendly**: Non-coding roles get useful tools (web search, planning outputs, file reads) without risky operations like `git push --force` or mass file edits. Default mode? Full engineering access. Simple.
+- **100% Open Source**: Runs locally. Privacy-first. No lock-in. Your keys, your data, your rules.
+
+---
+
+## Installation
+
+Same as OpenCode for now—same binary, same installer. We'll rename to `titancode` in a future release.
 
 ```bash
-# YOLO install
+# YOLO (one-liner)
 curl -fsSL https://opencode.ai/install | bash
+
+# Package managers
+npm i -g opencode-ai@latest        # or bun/pnpm/yarn
+brew install anomalyco/tap/opencode # macOS/Linux
+scoop install opencode              # Windows
+choco install opencode              # Windows
+sudo pacman -S opencode             # Arch Linux
 ```
 
-After install, you can rename or alias the binary to `titancode`:
+Want the `titancode` binary now? Just alias it:
 
 ```bash
-# Create an alias (add to your shell config)
-alias titancode=opencode
+alias titancode=opencode  # add to your shell config
 ```
 
-Or build from source (see Development section below).
+### Desktop App (Beta)
 
-### Quick Start
+Download from [releases](https://github.com/anomalyco/opencode/releases) or [opencode.ai/download](https://opencode.ai/download).
 
-Launch it:
+---
+
+## Quick Start
 
 ```bash
-opencode  # or titancode once aliased
+opencode  # or titancode if aliased
 ```
 
 Inside the TUI:
 
-- `/role list` → See available roles (adding more daily)
-- `/role software_engineer` → Full dev mode
-- `/role product_manager` → Research + planning mode
+| Command | What it does |
+|---------|--------------|
+| `/role list` | See all available roles |
+| `/role product_manager` | Switch to PM mode (safe tools only) |
+| `/role ux_designer` | Switch to UX mode |
+| `/role data_analyst` | Switch to analyst mode |
+| `/role default` | Full coding/engineering mode |
 
-### Built-in Roles
+---
 
-- Software Engineer (full tools: edit, shell, git)
-- Product Manager (web search, planning – no code edits)
-- UX Designer (research, wireframe ideas)
-- Data Analyst
-- Marketing Specialist
-- Business Analyst
-- CEO, CTO, CPO, CFO, COO
-- Engineering Manager
-- DevOps Engineer
-- QA Manager
-- Security Analyst
-- Sales Representative
-- HR Specialist
-- And 40+ more on the way...
+## Built-in Roles
 
-### Development
+| Role | What it does | Tools |
+|------|--------------|-------|
+| **Product Manager** | Strategy, roadmaps, user stories, PRs. Plans features, researches markets. | Web search, file read, planning outputs only |
+| **UX Designer** | User research, wireframes, flows, personas. Asks "who is this for?" | Web search, file read, research tools |
+| **Data Analyst** | Metrics, reports, SQL queries, charts. Digs into your data. | File read, SQL, basic command execution |
+| **Marketing Specialist** | Copy, campaigns, content strategy, SEO, social. Writes the good stuff. | Web search, file read/write (copy only) |
+| **Business Analyst** | Requirements, process maps, stakeholder interviews. Translates biz to tech. | Web search, file read |
+| **Sales Representative** | Lead handling, pitch decks, CRM insights. Closes deals. | Web search, file read |
+| **HR Specialist** | Job descriptions, policy docs, onboarding plans. People stuff. | Web search, file read/write |
+| **Default (Engineer)** | Full coding, debugging, architecture. Everything OpenCode can do. | All tools—file edit, shell, git, MCP, everything |
 
-Prerequisites:
+More roles coming: CEO, CTO, CFO, COO, Engineering Manager, DevOps Engineer, QA, Security Analyst... basically every job title you need for a startup. 🎯
 
-- [Bun](https://bun.sh) 1.3+
+---
 
-Install dependencies:
+## Planned Features
 
-```bash
-bun install
-```
+- **50+ Job Roles** — More personas with custom system prompts and fine-tuned tool permissions
+- **Web Search** — Tavily (BYOK) + DuckDuckGo fallback built-in
+- **Custom Role Creator** — Define your own roles with YAML (name, description, allowed tools, system prompt)
+- **Multi-Role Sessions** — PM + Engineer collaborating in tabs. Two heads better than one.
+- **Local/Weak Model Optimization** — Running on a laptop? We'll make it work efficiently.
+- **Figma Integration** — Pull designs directly into your workflow (later release)
+- **Custom Tool Permissions** — Granular control over what each role can/cannot do
 
-Run in development mode:
+---
 
-```bash
-bun dev
-```
+## Community
 
-Run against a different directory:
+Follow the journey: [@titan_griid](https://x.com/titan_griid)
 
-```bash
-bun dev <directory>
-```
+Discord coming soon—hang out, share ideas, break things together.
 
-Run against the titancode repo itself:
+Questions? Bugs? Cool role ideas? Open an issue. We read everything.
 
-```bash
-bun dev .
-```
+---
 
-Other useful commands:
+## Contributing
 
-```bash
-bun dev --help              # Show all available commands
-bun dev serve               # Start headless API server
-bun dev web                 # Start server + open web interface
-bun run --cwd packages/opencode typecheck  # Type checking
-```
+This is a fork of OpenCode (anomalyco/opencode). We're building Titan Code as a community-driven project. Issues, PRs, role suggestions, feature ideas—all welcome!
 
-### Building a Standalone Binary
+Check [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
 
-To compile a standalone executable:
+**Contributions welcome!** 🚀
 
-```bash
-./packages/opencode/script/build.ts --single
-```
-
-Then run it with:
-
-```bash
-./packages/opencode/dist/opencode-<platform>/bin/opencode
-```
-
-Replace `<platform>` with your platform (e.g., `darwin-arm64`, `linux-x64`, `windows-x64`).
-
-### Project Structure
-
-- `packages/opencode` - Core CLI agent and business logic
-- `packages/opencode/src/cli/cmd/tui/` - TUI code (SolidJS with opentui)
-- `packages/app` - Shared web UI components
-- `packages/desktop` - Native desktop app (Tauri)
-- `packages/plugin` - VS Code extension source
-
-### Planned Features
-
-- 50+ detailed job roles with custom prompts & tool permissions
-- Web search tool (Tavily BYOK + free DuckDuckGo fallback)
-- Custom role creation
-- Multi-role sessions (PM + Engineer collaborating in tabs)
-- Better support for local/weak models
-
-### Community
-
-Follow progress on X: [@titan_griid](https://x.com/titan_griid)
-
-(Community Discord coming soon – suggestions welcome!)
-
-### Contributing
-
-Contributions are super welcome – issues, PRs, role ideas, anything! Please read the [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
-
-Built with passion because startups deserve an AI team they can afford. Let's ship.
+Let's build the AI team every startup deserves. 🚀
