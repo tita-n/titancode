@@ -1,140 +1,148 @@
-<p align="center">
-  <a href="https://opencode.ai">
-    <picture>
-      <source srcset="packages/console/app/src/asset/logo-ornate-dark.svg" media="(prefers-color-scheme: dark)">
-      <source srcset="packages/console/app/src/asset/logo-ornate-light.svg" media="(prefers-color-scheme: light)">
-      <img src="packages/console/app/src/asset/logo-ornate-light.svg" alt="OpenCode logo">
-    </picture>
-  </a>
-</p>
-<p align="center">The open source AI coding agent.</p>
-<p align="center">
-  <a href="https://opencode.ai/discord"><img alt="Discord" src="https://img.shields.io/discord/1391832426048651334?style=flat-square&label=discord" /></a>
-  <a href="https://www.npmjs.com/package/opencode-ai"><img alt="npm" src="https://img.shields.io/npm/v/opencode-ai?style=flat-square" /></a>
-  <a href="https://github.com/anomalyco/opencode/actions/workflows/publish.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/anomalyco/opencode/publish.yml?style=flat-square&branch=dev" /></a>
-</p>
+# Titan Code
 
-<p align="center">
-  <a href="README.md">English</a> |
-  <a href="README.zh.md">简体中文</a> |
-  <a href="README.zht.md">繁體中文</a> |
-  <a href="README.ko.md">한국어</a> |
-  <a href="README.de.md">Deutsch</a> |
-  <a href="README.es.md">Español</a> |
-  <a href="README.fr.md">Français</a> |
-  <a href="README.it.md">Italiano</a> |
-  <a href="README.da.md">Dansk</a> |
-  <a href="README.ja.md">日本語</a> |
-  <a href="README.pl.md">Polski</a> |
-  <a href="README.ru.md">Русский</a> |
-  <a href="README.bs.md">Bosanski</a> |
-  <a href="README.ar.md">العربية</a> |
-  <a href="README.no.md">Norsk</a> |
-  <a href="README.br.md">Português (Brasil)</a> |
-  <a href="README.th.md">ไทย</a> |
-  <a href="README.tr.md">Türkçe</a> |
-  <a href="README.uk.md">Українська</a> |
-  <a href="README.bn.md">বাংলা</a> |
-  <a href="README.gr.md">Ελληνικά</a>
-</p>
+![Titan Code Logo](https://via.placeholder.com/800x200.png?text=Titan+Code+-+Your+AI+Workforce+Agent)  
+*(Replace this placeholder with your actual logo once generated – something epic with a titan + terminal vibe)*
 
-[![OpenCode Terminal UI](packages/web/src/assets/lander/screenshot.png)](https://opencode.ai)
+**Titan Code** is an open-source terminal-based AI agent that goes beyond coding. Switch between **50+ job roles** (Software Engineer, Product Manager, UX Designer, Data Analyst, Marketer, and more) to build your virtual startup team.
 
----
+Forked from the awesome [OpenCode](https://github.com/anomalyco/opencode) and enhanced with role-switching superpowers. Perfect for solo founders, bootstrapped teams, or anyone who needs an AI that can wear multiple hats.
+
+### Why Titan Code?
+
+- **Role Switching**: Use `/role software_engineer` for full coding power, `/role product_manager` for planning and research (with safe tools only), and so on.
+- **Strict Boundaries**: Ask something outside the current role? It rejects and tells you to switch – keeps things professional and focused.
+- **BYOK Everything**: Bring your own keys for any model (Claude, Gemini, Grok, OpenAI, local Ollama) + tools like web search.
+- **Startup-Friendly**: Non-coding roles get useful tools (web search, planning outputs) without risky file edits.
+- **100% Open Source**: No lock-in, runs locally, privacy-first.
+
+Early stage project – actively building more roles, smarter tool permissions, and weak-model optimizations.
 
 ### Installation
 
 ```bash
-# YOLO
+# YOLO install
 curl -fsSL https://opencode.ai/install | bash
-
-# Package managers
-npm i -g opencode-ai@latest        # or bun/pnpm/yarn
-scoop install opencode             # Windows
-choco install opencode             # Windows
-brew install anomalyco/tap/opencode # macOS and Linux (recommended, always up to date)
-brew install opencode              # macOS and Linux (official brew formula, updated less)
-sudo pacman -S opencode            # Arch Linux (Stable)
-paru -S opencode-bin               # Arch Linux (Latest from AUR)
-mise use -g opencode               # Any OS
-nix run nixpkgs#opencode           # or github:anomalyco/opencode for latest dev branch
 ```
 
-> [!TIP]
-> Remove versions older than 0.1.x before installing.
-
-### Desktop App (BETA)
-
-OpenCode is also available as a desktop application. Download directly from the [releases page](https://github.com/anomalyco/opencode/releases) or [opencode.ai/download](https://opencode.ai/download).
-
-| Platform              | Download                              |
-| --------------------- | ------------------------------------- |
-| macOS (Apple Silicon) | `opencode-desktop-darwin-aarch64.dmg` |
-| macOS (Intel)         | `opencode-desktop-darwin-x64.dmg`     |
-| Windows               | `opencode-desktop-windows-x64.exe`    |
-| Linux                 | `.deb`, `.rpm`, or AppImage           |
+After install, you can rename or alias the binary to `titancode`:
 
 ```bash
-# macOS (Homebrew)
-brew install --cask opencode-desktop
-# Windows (Scoop)
-scoop bucket add extras; scoop install extras/opencode-desktop
+# Create an alias (add to your shell config)
+alias titancode=opencode
 ```
 
-#### Installation Directory
+Or build from source (see Development section below).
 
-The install script respects the following priority order for the installation path:
+### Quick Start
 
-1. `$OPENCODE_INSTALL_DIR` - Custom installation directory
-2. `$XDG_BIN_DIR` - XDG Base Directory Specification compliant path
-3. `$HOME/bin` - Standard user binary directory (if it exists or can be created)
-4. `$HOME/.opencode/bin` - Default fallback
+Launch it:
 
 ```bash
-# Examples
-OPENCODE_INSTALL_DIR=/usr/local/bin curl -fsSL https://opencode.ai/install | bash
-XDG_BIN_DIR=$HOME/.local/bin curl -fsSL https://opencode.ai/install | bash
+opencode  # or titancode once aliased
 ```
 
-### Agents
+Inside the TUI:
 
-OpenCode includes two built-in agents you can switch between with the `Tab` key.
+- `/role list` → See available roles (adding more daily)
+- `/role software_engineer` → Full dev mode
+- `/role product_manager` → Research + planning mode
 
-- **build** - Default, full-access agent for development work
-- **plan** - Read-only agent for analysis and code exploration
-  - Denies file edits by default
-  - Asks permission before running bash commands
-  - Ideal for exploring unfamiliar codebases or planning changes
+### Built-in Roles
 
-Also included is a **general** subagent for complex searches and multistep tasks.
-This is used internally and can be invoked using `@general` in messages.
+- Software Engineer (full tools: edit, shell, git)
+- Product Manager (web search, planning – no code edits)
+- UX Designer (research, wireframe ideas)
+- Data Analyst
+- Marketing Specialist
+- Business Analyst
+- CEO, CTO, CPO, CFO, COO
+- Engineering Manager
+- DevOps Engineer
+- QA Manager
+- Security Analyst
+- Sales Representative
+- HR Specialist
+- And 40+ more on the way...
 
-Learn more about [agents](https://opencode.ai/docs/agents).
+### Development
 
-### Documentation
+Prerequisites:
 
-For more info on how to configure OpenCode, [**head over to our docs**](https://opencode.ai/docs).
+- [Bun](https://bun.sh) 1.3+
+
+Install dependencies:
+
+```bash
+bun install
+```
+
+Run in development mode:
+
+```bash
+bun dev
+```
+
+Run against a different directory:
+
+```bash
+bun dev <directory>
+```
+
+Run against the titancode repo itself:
+
+```bash
+bun dev .
+```
+
+Other useful commands:
+
+```bash
+bun dev --help              # Show all available commands
+bun dev serve               # Start headless API server
+bun dev web                 # Start server + open web interface
+bun run --cwd packages/opencode typecheck  # Type checking
+```
+
+### Building a Standalone Binary
+
+To compile a standalone executable:
+
+```bash
+./packages/opencode/script/build.ts --single
+```
+
+Then run it with:
+
+```bash
+./packages/opencode/dist/opencode-<platform>/bin/opencode
+```
+
+Replace `<platform>` with your platform (e.g., `darwin-arm64`, `linux-x64`, `windows-x64`).
+
+### Project Structure
+
+- `packages/opencode` - Core CLI agent and business logic
+- `packages/opencode/src/cli/cmd/tui/` - TUI code (SolidJS with opentui)
+- `packages/app` - Shared web UI components
+- `packages/desktop` - Native desktop app (Tauri)
+- `packages/plugin` - VS Code extension source
+
+### Planned Features
+
+- 50+ detailed job roles with custom prompts & tool permissions
+- Web search tool (Tavily BYOK + free DuckDuckGo fallback)
+- Custom role creation
+- Multi-role sessions (PM + Engineer collaborating in tabs)
+- Better support for local/weak models
+
+### Community
+
+Follow progress on X: [@titan_griid](https://x.com/titan_griid)
+
+(Community Discord coming soon – suggestions welcome!)
 
 ### Contributing
 
-If you're interested in contributing to OpenCode, please read our [contributing docs](./CONTRIBUTING.md) before submitting a pull request.
+Contributions are super welcome – issues, PRs, role ideas, anything! Please read the [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
 
-### Building on OpenCode
-
-If you are working on a project that's related to OpenCode and is using "opencode" as part of its name, for example "opencode-dashboard" or "opencode-mobile", please add a note to your README to clarify that it is not built by the OpenCode team and is not affiliated with us in any way.
-
-### FAQ
-
-#### How is this different from Claude Code?
-
-It's very similar to Claude Code in terms of capability. Here are the key differences:
-
-- 100% open source
-- Not coupled to any provider. Although we recommend the models we provide through [OpenCode Zen](https://opencode.ai/zen), OpenCode can be used with Claude, OpenAI, Google, or even local models. As models evolve, the gaps between them will close and pricing will drop, so being provider-agnostic is important.
-- Out-of-the-box LSP support
-- A focus on TUI. OpenCode is built by neovim users and the creators of [terminal.shop](https://terminal.shop); we are going to push the limits of what's possible in the terminal.
-- A client/server architecture. This, for example, can allow OpenCode to run on your computer while you drive it remotely from a mobile app, meaning that the TUI frontend is just one of the possible clients.
-
----
-
-**Join our community** [Discord](https://discord.gg/opencode) | [X.com](https://x.com/opencode)
+Built with passion because startups deserve an AI team they can afford. Let's ship.
