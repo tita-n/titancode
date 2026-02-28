@@ -30,6 +30,8 @@ import { JiraTool } from "./jira"
 import { SlackTool } from "./slack"
 import { DockerTool } from "./docker"
 import { NotionTool } from "./notion"
+import { TicketTool } from "./ticket"
+import { EmailTool } from "./email"
 import { Flag } from "@/flag/flag"
 import { Log } from "@/util/log"
 import { LspTool } from "./lsp"
@@ -131,6 +133,8 @@ export namespace ToolRegistry {
       SlackTool,
       DockerTool,
       NotionTool,
+      TicketTool,
+      EmailTool,
       SkillTool,
       ApplyPatchTool,
       ...(Flag.OPENCODE_EXPERIMENTAL_LSP_TOOL ? [LspTool] : []),
