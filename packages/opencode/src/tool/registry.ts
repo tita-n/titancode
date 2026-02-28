@@ -37,6 +37,14 @@ import { TaskManagementReadTool } from "./task_management_read"
 import { TaskManagementWriteTool } from "./task_management_write"
 import { RoleTool } from "./role"
 import { AgentSwitchTool } from "./agent_switch"
+import { PlanningTool } from "./planning"
+import { CalendarTool } from "./calendar"
+import { SpreadsheetTool } from "./spreadsheet"
+import { VideoCallTool } from "./video_call"
+import { GitTool } from "./git"
+import { DocGeneratorTool } from "./doc_generator"
+import { TicketReadTool } from "./ticket_read"
+import { TicketWriteTool } from "./ticket_write"
 import { Flag } from "@/flag/flag"
 import { Log } from "@/util/log"
 import { LspTool } from "./lsp"
@@ -145,6 +153,14 @@ export namespace ToolRegistry {
       TaskManagementWriteTool,
       RoleTool,
       AgentSwitchTool,
+      PlanningTool,
+      CalendarTool,
+      SpreadsheetTool,
+      VideoCallTool,
+      GitTool,
+      DocGeneratorTool,
+      TicketReadTool,
+      TicketWriteTool,
       SkillTool,
       ApplyPatchTool,
       ...(Flag.OPENCODE_EXPERIMENTAL_LSP_TOOL ? [LspTool] : []),
