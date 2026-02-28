@@ -13,6 +13,9 @@ import PROMPT_COMPACTION from "./prompt/compaction.txt"
 import PROMPT_EXPLORE from "./prompt/explore.txt"
 import PROMPT_SUMMARY from "./prompt/summary.txt"
 import PROMPT_TITLE from "./prompt/title.txt"
+import PROMPT_DEBUG from "../session/prompt/debug.txt"
+import PROMPT_WRITE from "../session/prompt/write.txt"
+import PROMPT_REVIEW from "../session/prompt/review.txt"
 import { PermissionNext } from "@/permission/next"
 import { mergeDeep, pipe, sortBy, values } from "remeda"
 import { Global } from "@/global"
@@ -109,6 +112,33 @@ export namespace Agent {
           }),
           user,
         ),
+        mode: "primary",
+        native: true,
+      },
+      debug: {
+        name: "debug",
+        description: "Debug mode. Use this agent to find and fix bugs. It follows a systematic debugging process: understand error, find root cause, form hypothesis, verify, fix, and test.",
+        prompt: PROMPT_DEBUG,
+        options: {},
+        permission: PermissionNext.merge(defaults, user),
+        mode: "primary",
+        native: true,
+      },
+      write: {
+        name: "write",
+        description: "Writing mode. Use this agent to create new code. It follows best practices: analyze requirements, design solution, write tests first, implement, and verify.",
+        prompt: PROMPT_WRITE,
+        options: {},
+        permission: PermissionNext.merge(defaults, user),
+        mode: "primary",
+        native: true,
+      },
+      review: {
+        name: "review",
+        description: "Review mode. Use this agent to review code changes. It checks for security, error handling, performance, correctness, and maintainability issues.",
+        prompt: PROMPT_REVIEW,
+        options: {},
+        permission: PermissionNext.merge(defaults, user),
         mode: "primary",
         native: true,
       },

@@ -20,59 +20,6 @@ import { Plugin } from "@/plugin"
 
 const MAX_METADATA_LENGTH = 30_000
 const DEFAULT_TIMEOUT = Flag.OPENCODE_EXPERIMENTAL_BASH_DEFAULT_TIMEOUT_MS || 2 * 60 * 1000
-const RETRY_MAX_ATTEMPTS = 3
-const RETRY_BASE_DELAY_MS = 1000
-
-const RETRYABLE_ERRORS = [
-  "ECONNREFUSED",
-  "ETIMEDOUT",
-  "ENOTFOUND",
-  "EAI_AGAIN",
-  "ECONNRESET",
-  "EPIPE",
-  "ETXTBSY",
-]
-
-function isRetryableError(error: unknown): boolean {
-  if (error instanceof Error) {
-    return RETRYABLE_ERRORS.some((code) => error.message.includes(code))
-  }
-  return false
-}
-
-function getRetryDelay(attempt: number): number {
-  return RETRY_BASE_DELAY_MS * Math.pow(2, attempt - 1)
-}
-
-async function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-async function executeWithRetry<T>(
-  fn: () => Promise<T>,
-  maxAttempts: number = RETRY_MAX_ATTEMPTS,
-): Promise<T> {
-  let lastError: unknown
-
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    try {
-      return await fn()
-    } catch (error) {
-      lastError = error
-
-      if (attempt < maxAttempts && isRetryableError(error)) {
-        const delay = getRetryDelay(attempt)
-        log.info("retrying after error", { attempt, delay, error: error.message })
-        await sleep(delay)
-        continue
-      }
-
-      throw error
-    }
-  }
-
-  throw lastError
-}
 
 export const log = Log.create({ service: "bash-tool" })
 
@@ -222,110 +169,106 @@ export const BashTool = Tool.define("bash", async () => {
         { cwd, sessionID: ctx.sessionID, callID: ctx.callID },
         { env: {} },
       )
+      const proc = spawn(params.command, {
+        shell,
+        cwd,
+        env: {
+          ...process.env,
+          ...shellEnv.env,
+        },
+        stdio: ["ignore", "pipe", "pipe"],
+        detached: process.platform !== "win32",
+      })
 
-      // Execute command with retry support
-      const result = await executeWithRetry(async () => {
-        const proc = spawn(params.command, {
-          shell,
-          cwd,
-          env: {
-            ...process.env,
-            ...shellEnv.env,
-          },
-          stdio: ["ignore", "pipe", "pipe"],
-          detached: process.platform !== "win32",
-        })
+      let output = ""
 
-        let output = ""
+      // Initialize metadata with empty output
+      ctx.metadata({
+        metadata: {
+          output: "",
+          description: params.description,
+        },
+      })
 
-        // Initialize metadata with empty output
+      const append = (chunk: Buffer) => {
+        output += chunk.toString()
         ctx.metadata({
           metadata: {
-            output: "",
-            description: params.description,
-          },
-        })
-
-        const append = (chunk: Buffer) => {
-          output += chunk.toString()
-          ctx.metadata({
-            metadata: {
-              // truncate the metadata to avoid GIANT blobs of data (has nothing to do w/ what agent can access)
-              output: output.length > MAX_METADATA_LENGTH ? output.slice(0, MAX_METADATA_LENGTH) + "\n\n..." : output,
-              description: params.description,
-            },
-          })
-        }
-
-        proc.stdout?.on("data", append)
-        proc.stderr?.on("data", append)
-
-        let timedOut = false
-        let aborted = false
-        let exited = false
-
-        const kill = () => Shell.killTree(proc, { exited: () => exited })
-
-        if (ctx.abort.aborted) {
-          aborted = true
-          await kill()
-        }
-
-        const abortHandler = () => {
-          aborted = true
-          void kill()
-        }
-
-        ctx.abort.addEventListener("abort", abortHandler, { once: true })
-
-        const timeoutTimer = setTimeout(() => {
-          timedOut = true
-          void kill()
-        }, timeout + 100)
-
-        await new Promise<void>((resolve, reject) => {
-          const cleanup = () => {
-            clearTimeout(timeoutTimer)
-            ctx.abort.removeEventListener("abort", abortHandler)
-          }
-
-          proc.once("exit", () => {
-            exited = true
-            cleanup()
-            resolve()
-          })
-
-          proc.once("error", (error) => {
-            exited = true
-            cleanup()
-            reject(error)
-          })
-        })
-
-        const resultMetadata: string[] = []
-
-        if (timedOut) {
-          resultMetadata.push(`bash tool terminated command after exceeding timeout ${timeout} ms`)
-        }
-
-        if (aborted) {
-          resultMetadata.push("User aborted the command")
-        }
-
-        if (resultMetadata.length > 0) {
-          output += "\n\n<bash_metadata>\n" + resultMetadata.join("\n") + "\n</bash_metadata>"
-        }
-
-        return {
-          title: params.description,
-          metadata: {
+            // truncate the metadata to avoid GIANT blobs of data (has nothing to do w/ what agent can access)
             output: output.length > MAX_METADATA_LENGTH ? output.slice(0, MAX_METADATA_LENGTH) + "\n\n..." : output,
-            exit: proc.exitCode,
             description: params.description,
           },
-          output,
+        })
+      }
+
+      proc.stdout?.on("data", append)
+      proc.stderr?.on("data", append)
+
+      let timedOut = false
+      let aborted = false
+      let exited = false
+
+      const kill = () => Shell.killTree(proc, { exited: () => exited })
+
+      if (ctx.abort.aborted) {
+        aborted = true
+        await kill()
+      }
+
+      const abortHandler = () => {
+        aborted = true
+        void kill()
+      }
+
+      ctx.abort.addEventListener("abort", abortHandler, { once: true })
+
+      const timeoutTimer = setTimeout(() => {
+        timedOut = true
+        void kill()
+      }, timeout + 100)
+
+      await new Promise<void>((resolve, reject) => {
+        const cleanup = () => {
+          clearTimeout(timeoutTimer)
+          ctx.abort.removeEventListener("abort", abortHandler)
         }
+
+        proc.once("exit", () => {
+          exited = true
+          cleanup()
+          resolve()
+        })
+
+        proc.once("error", (error) => {
+          exited = true
+          cleanup()
+          reject(error)
+        })
       })
+
+      const resultMetadata: string[] = []
+
+      if (timedOut) {
+        resultMetadata.push(`bash tool terminated command after exceeding timeout ${timeout} ms`)
+      }
+
+      if (aborted) {
+        resultMetadata.push("User aborted the command")
+      }
+
+      if (resultMetadata.length > 0) {
+        output += "\n\n<bash_metadata>\n" + resultMetadata.join("\n") + "\n</bash_metadata>"
+      }
+
+      return {
+        title: params.description,
+        metadata: {
+          output: output.length > MAX_METADATA_LENGTH ? output.slice(0, MAX_METADATA_LENGTH) + "\n\n..." : output,
+          exit: proc.exitCode,
+          description: params.description,
+        },
+        output,
+      }
     },
   }
 })
