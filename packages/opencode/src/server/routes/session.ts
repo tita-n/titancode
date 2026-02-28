@@ -7,6 +7,7 @@ import { MessageV2 } from "../../session/message-v2"
 import { SessionPrompt } from "../../session/prompt"
 import { SessionCompaction } from "../../session/compaction"
 import { SessionRevert } from "../../session/revert"
+import { Checkpoint } from "../../session/checkpoint"
 import { SessionStatus } from "@/session/status"
 import { SessionSummary } from "@/session/summary"
 import { Todo } from "../../session/todo"
@@ -970,5 +971,175 @@ export const SessionRoutes = lazy(() =>
         })
         return c.json(true)
       },
-    ),
+    )
+    .post(
+      "/:sessionID/checkpoint",
+      describeRoute({
+        summary: "Create checkpoint",
+        description: "Create a named checkpoint of the current session state.",
+        operationId: "session.checkpoint",
+        responses: {
+          200: {
+            description: "Checkpoint created",
+            content: {
+              "application/json": {
+                schema: resolver(z.object({ commitID: z.string(), branchID: z.string() })),
+              },
+            },
+          },
+          ...errors(400, 404),
+        },
+      }),
+      validator(
+        "param",
+        z.object({
+          sessionID: z.string(),
+        }),
+      ),
+      validator("json", z.object({ message: z.string() })),
+      async (c) => {
+        const sessionID = c.req.valid("param").sessionID
+        const { message } = c.req.valid("json")
+        log.info("checkpoint", { sessionID, message })
+        const result = await Checkpoint.createCheckpoint(sessionID, message)
+        return c.json(result)
+      },
+    )
+    .get(
+      "/:sessionID/checkpoints",
+      describeRoute({
+        summary: "List checkpoints",
+        description: "List all checkpoints (branches) for a session.",
+        operationId: "session.checkpoints",
+        responses: {
+          200: {
+            description: "List of branches",
+            content: {
+              "application/json": {
+                schema: resolver(z.array(z.object({
+                  id: z.string(),
+                  name: z.string(),
+                  head_commit_id: z.string().nullable(),
+                  created_at: z.number(),
+                  updated_at: z.number(),
+                }))),
+              },
+            },
+          },
+        },
+      }),
+      validator(
+        "param",
+        z.object({
+          sessionID: z.string(),
+        }),
+      ),
+      async (c) => {
+        const sessionID = c.req.valid("param").sessionID
+        const branches = await Checkpoint.listBranches(sessionID)
+        return c.json(branches)
+      },
+    )
+    .get(
+      "/:sessionID/checkpoints/:branchID",
+      describeRoute({
+        summary: "Get checkpoint commits",
+        description: "List all commits in a checkpoint branch.",
+        operationId: "session.checkpoint.commits",
+        responses: {
+          200: {
+            description: "List of commits",
+            content: {
+              "application/json": {
+                schema: resolver(z.array(z.object({
+                  id: z.string(),
+                  message: z.string(),
+                  snapshot_hash: z.string().nullable(),
+                  created_at: z.number(),
+                }))),
+              },
+            },
+          },
+        },
+      }),
+      validator(
+        "param",
+        z.object({
+          sessionID: z.string(),
+          branchID: z.string(),
+        }),
+      ),
+      async (c) => {
+        const params = c.req.valid("param")
+        const commits = await Checkpoint.listCommits(params.branchID)
+        return c.json(commits)
+      },
+    )
+    .post(
+      "/:sessionID/checkpoints/:branchID/restore",
+      describeRoute({
+        summary: "Restore to checkpoint",
+        description: "Restore session files to a specific checkpoint commit.",
+        operationId: "session.checkpoint.restore",
+        responses: {
+          200: {
+            description: "Restored successfully",
+            content: {
+              "application/json": {
+                schema: resolver(z.object({ commitID: z.string() })),
+              },
+            },
+          },
+          ...errors(400, 404),
+        },
+      }),
+      validator(
+        "param",
+        z.object({
+          sessionID: z.string(),
+          branchID: z.string(),
+        }),
+      ),
+      validator("json", z.object({ commitID: z.string() })),
+      async (c) => {
+        const params = c.req.valid("param")
+        const { commitID } = c.req.valid("json")
+        log.info("checkpoint restore", { sessionID: params.sessionID, commitID })
+        await Checkpoint.restoreToCommit(commitID)
+        return c.json({ commitID })
+      },
+    )
+    .post(
+      "/:sessionID/checkpoints",
+      describeRoute({
+        summary: "Create branch",
+        description: "Create a new checkpoint branch.",
+        operationId: "session.checkpoint.branch",
+        responses: {
+          200: {
+            description: "Branch created",
+            content: {
+              "application/json": {
+                schema: resolver(z.object({ branchID: z.string() })),
+              },
+            },
+          },
+          ...errors(400, 404),
+        },
+      }),
+      validator(
+        "param",
+        z.object({
+          sessionID: z.string(),
+        }),
+      ),
+      validator("json", z.object({ name: z.string(), parentCommitID: z.string().optional() })),
+      async (c) => {
+        const sessionID = c.req.valid("param").sessionID
+        const { name, parentCommitID } = c.req.valid("json")
+        log.info("checkpoint branch", { sessionID, name })
+        const branchID = await Checkpoint.createBranch(sessionID, name, parentCommitID)
+        return c.json({ branchID })
+      },
+    )
 )
