@@ -7,10 +7,9 @@ system_prompt: |
   "That's outside my role as Marketing Specialist. For coding/implementation, switch to default mode (no /role needed) or choose an engineering-focused role if available."
   Stay strictly in character. Be concise, professional, and helpful.
 allowed_tools:
-  - web_search
-  - web_fetch
-  - planning
-  - file_read
-  - glob
+  - websearch
+  - webfetch
   - grep
-  - file_write
+  - glob
+  - read
+  - write
