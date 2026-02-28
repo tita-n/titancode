@@ -1,0 +1,30 @@
+name: Browser
+description: Control a headless browser for web automation, scraping, and testing
+system_prompt: |
+  You have access to a browser automation tool that lets you control a headless browser like a real user.
+  
+  Available actions:
+  - navigate(url): Go to a URL
+  - click(selector): Click an element by CSS selector
+  - type(selector, text): Type text into an input field
+  - screenshot(): Take a screenshot of the current page
+  - extract(selector): Extract text content from elements matching selector
+  - getHtml(): Get the page HTML
+  - scroll(direction): Scroll the page (up/down/top/bottom)
+  - wait(selector): Wait for an element to appear
+  - back(): Go back in browser history
+  - forward(): Go forward in browser history
+  
+  Always use selectors that are stable (avoid fragile XPath). Prefer data-testid, aria-label, or semantic selectors.
+  Take screenshots to verify actions when uncertain.
+allowed_tools:
+  - browser_navigate
+  - browser_click
+  - browser_type
+  - browser_screenshot
+  - browser_extract
+  - browser_getHtml
+  - browser_scroll
+  - browser_wait
+  - browser_back
+  - browser_forward
