@@ -221,6 +221,13 @@ export function Session() {
     } else if (part.tool === "plan_enter") {
       local.agent.set("plan")
       lastSwitch = part.id
+    } else if (part.tool === "role") {
+      const output = part.state.output ?? ""
+      const match = output.match(/Role changed to "([^"]+)"/)
+      if (match) {
+        local.agent.setRole(match[1])
+      }
+      lastSwitch = part.id
     }
   })
 

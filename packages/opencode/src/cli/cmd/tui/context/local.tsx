@@ -39,8 +39,10 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
       const visibleAgents = createMemo(() => sync.data.agent.filter((x) => !x.hidden))
       const [agentStore, setAgentStore] = createStore<{
         current: string
+        role: string
       }>({
         current: agents()[0].name,
+        role: "",
       })
       const { theme } = useTheme()
       const colors = createMemo(() => [
@@ -67,6 +69,12 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
               duration: 3000,
             })
           setAgentStore("current", name)
+        },
+        role() {
+          return agentStore.role
+        },
+        setRole(name: string) {
+          setAgentStore("role", name)
         },
         move(direction: 1 | -1) {
           batch(() => {

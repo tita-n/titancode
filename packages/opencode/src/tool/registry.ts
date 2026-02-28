@@ -35,6 +35,7 @@ import { StorybookTool } from "./storybook"
 import { BiTool } from "./bi"
 import { TaskManagementReadTool } from "./task_management_read"
 import { TaskManagementWriteTool } from "./task_management_write"
+import { RoleTool } from "./role"
 import { Flag } from "@/flag/flag"
 import { Log } from "@/util/log"
 import { LspTool } from "./lsp"
@@ -141,6 +142,7 @@ export namespace ToolRegistry {
       BiTool,
       TaskManagementReadTool,
       TaskManagementWriteTool,
+      RoleTool,
       SkillTool,
       ApplyPatchTool,
       ...(Flag.OPENCODE_EXPERIMENTAL_LSP_TOOL ? [LspTool] : []),

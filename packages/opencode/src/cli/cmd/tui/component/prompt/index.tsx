@@ -1000,6 +1000,9 @@ export function Prompt(props: PromptProps) {
               <text fg={highlight()}>
                 {store.mode === "shell" ? "Shell" : Locale.titlecase(local.agent.current().name)}{" "}
               </text>
+              <Show when={local.agent.role()}>
+                <text fg={theme.info}>({local.agent.role()})</text>
+              </Show>
               <Show when={store.mode === "normal"}>
                 <box flexDirection="row" gap={1}>
                   <text flexShrink={0} fg={keybind.leader ? theme.textMuted : theme.text}>
