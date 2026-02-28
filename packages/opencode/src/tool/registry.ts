@@ -29,11 +29,12 @@ import { GithubTool } from "./github"
 import { JiraTool } from "./jira"
 import { SlackTool } from "./slack"
 import { DockerTool } from "./docker"
-import { NotionTool } from "./notion"
 import { TicketTool } from "./ticket"
 import { EmailTool } from "./email"
 import { StorybookTool } from "./storybook"
 import { BiTool } from "./bi"
+import { TaskManagementReadTool } from "./task_management_read"
+import { TaskManagementWriteTool } from "./task_management_write"
 import { Flag } from "@/flag/flag"
 import { Log } from "@/util/log"
 import { LspTool } from "./lsp"
@@ -134,11 +135,12 @@ export namespace ToolRegistry {
       JiraTool,
       SlackTool,
       DockerTool,
-      NotionTool,
       TicketTool,
       EmailTool,
       StorybookTool,
       BiTool,
+      TaskManagementReadTool,
+      TaskManagementWriteTool,
       SkillTool,
       ApplyPatchTool,
       ...(Flag.OPENCODE_EXPERIMENTAL_LSP_TOOL ? [LspTool] : []),
