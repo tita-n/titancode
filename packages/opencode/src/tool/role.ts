@@ -6,6 +6,9 @@ import { Session } from "../session"
 import { MessageV2 } from "../session/message-v2"
 import { Identifier } from "../id/id"
 import { Provider } from "../provider/provider"
+import { PermissionNext } from "@/permission/next"
+
+const ROLE_KEY = "current_role"
 
 async function getLastModel(sessionID: string) {
   for await (const item of MessageV2.stream(sessionID)) {
@@ -21,6 +24,38 @@ async function getCurrentAgent(sessionID: string): Promise<string> {
   return "build"
 }
 
+async function executeExit(ctx: any) {
+  const session = await Session.get(ctx.sessionID)
+        
+  const userMsg: MessageV2.User = {
+    id: Identifier.ascending("message"),
+    sessionID: ctx.sessionID,
+    role: "user",
+    time: { created: Date.now() },
+    agent: "build",
+    model: await getLastModel(ctx.sessionID),
+  }
+  await Session.updateMessage(userMsg)
+  await Session.setPermission({
+    sessionID: session.id,
+    permission: [],
+  })
+  await Session.updatePart({
+    id: Identifier.ascending("part"),
+    messageID: userMsg.id,
+    sessionID: ctx.sessionID,
+    type: "text",
+    text: `Exited role. Using default build agent with full tool access.`,
+    synthetic: true,
+  } satisfies MessageV2.TextPart)
+
+  return {
+    title: "Exited Role",
+    metadata: { role: null },
+    output: "Exited role. Using default build agent with full tool access.",
+  }
+}
+
 export const RoleTool = Tool.define("role", async () => {
   const roles = await listRoles()
   const roleList = roles.map((r) => `- ${r.name}: ${r.description}`).join("\n")
@@ -34,10 +69,11 @@ ${roleList}
 Commands:
 - /role list - Show all available roles
 - /role <name> - Switch to a specific role
+- /role exit - Exit current role and return to default build agent
 
 Roles define what tools are available and how the agent behaves.`,
     parameters: z.object({
-      action: z.enum(["list", "switch"]).describe("Action to perform"),
+      action: z.enum(["list", "switch", "exit"]).describe("Action to perform"),
       role_name: z.string().describe("Name of the role to switch to").optional(),
     }),
     async execute(params: any, ctx: any): Promise<{ title: string; metadata: Record<string, any>; output: string }> {
@@ -47,9 +83,17 @@ Roles define what tools are available and how the agent behaves.`,
         return { title: "Available Roles", metadata: { roles: roles.map((r) => r.name) }, output }
       }
 
+      if (params.action === "exit") {
+        return executeExit(ctx)
+      }
+
       if (params.action === "switch") {
         const roleName = params.role_name
         if (!roleName) throw new Error("role_name required for switch action")
+
+        if (roleName === "exit" || roleName === "default" || roleName === "none") {
+          return executeExit(ctx)
+        }
 
         const role = await getRole(roleName)
         if (!role) {
@@ -57,7 +101,6 @@ Roles define what tools are available and how the agent behaves.`,
           throw new Error(`Role "${roleName}" not found. Available: ${available}`)
         }
 
-        const session = await Session.get(ctx.sessionID)
         const currentAgent = await getCurrentAgent(ctx.sessionID)
         const isPlanMode = currentAgent === "plan"
 
@@ -84,7 +127,16 @@ Roles define what tools are available and how the agent behaves.`,
           }
         }
 
+        const session = await Session.get(ctx.sessionID)
         const model = await getLastModel(ctx.sessionID)
+
+        const permission: PermissionNext.Ruleset = [
+          ...role.allowed_tools.map((tool) => ({ permission: tool, pattern: "*", action: "allow" as const })),
+          { permission: "*", pattern: "*", action: "deny" },
+          { permission: "question", pattern: "*", action: "allow" },
+          { permission: "role", pattern: "*", action: "allow" },
+          { permission: "agent_switch", pattern: "*", action: "allow" },
+        ]
 
         const userMsg: MessageV2.User = {
           id: Identifier.ascending("message"),
@@ -95,6 +147,10 @@ Roles define what tools are available and how the agent behaves.`,
           model,
         }
         await Session.updateMessage(userMsg)
+        await Session.setPermission({
+          sessionID: session.id,
+          permission,
+        })
         await Session.updatePart({
           id: Identifier.ascending("part"),
           messageID: userMsg.id,

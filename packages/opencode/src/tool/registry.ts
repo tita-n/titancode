@@ -36,6 +36,7 @@ import { BiTool } from "./bi"
 import { TaskManagementReadTool } from "./task_management_read"
 import { TaskManagementWriteTool } from "./task_management_write"
 import { RoleTool } from "./role"
+import { AgentSwitchTool } from "./agent_switch"
 import { Flag } from "@/flag/flag"
 import { Log } from "@/util/log"
 import { LspTool } from "./lsp"
@@ -143,6 +144,7 @@ export namespace ToolRegistry {
       TaskManagementReadTool,
       TaskManagementWriteTool,
       RoleTool,
+      AgentSwitchTool,
       SkillTool,
       ApplyPatchTool,
       ...(Flag.OPENCODE_EXPERIMENTAL_LSP_TOOL ? [LspTool] : []),
