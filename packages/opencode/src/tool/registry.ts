@@ -28,6 +28,8 @@ import { FigmaTool } from "./figma"
 import { GithubTool } from "./github"
 import { JiraTool } from "./jira"
 import { SlackTool } from "./slack"
+import { DockerTool } from "./docker"
+import { NotionTool } from "./notion"
 import { Flag } from "@/flag/flag"
 import { Log } from "@/util/log"
 import { LspTool } from "./lsp"
@@ -127,6 +129,8 @@ export namespace ToolRegistry {
       GithubTool,
       JiraTool,
       SlackTool,
+      DockerTool,
+      NotionTool,
       SkillTool,
       ApplyPatchTool,
       ...(Flag.OPENCODE_EXPERIMENTAL_LSP_TOOL ? [LspTool] : []),
