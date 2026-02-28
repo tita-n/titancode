@@ -126,6 +126,7 @@
     "turndown": "7.2.0",
     "ulid": "catalog:",
     "playwright": "^1.48.0",
+    "pg": "^8.11.0",
     "vscode-jsonrpc": "8.2.1",
     "web-tree-sitter": "0.25.10",
     "xdg-basedir": "5.1.0",
