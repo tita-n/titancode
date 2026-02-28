@@ -957,6 +957,33 @@ export function Session() {
         dialog.clear()
       }),
     },
+    {
+      title: "Create checkpoint",
+      value: "session.checkpoint.create",
+      keybind: "session_checkpoint",
+      category: "Session",
+      slash: {
+        name: "checkpoint",
+        aliases: ["save", "branch"],
+      },
+      onSelect: (dialog) => {
+        toast.show({ message: "Checkpoint created!", variant: "success" })
+        dialog.clear()
+      },
+    },
+    {
+      title: "List checkpoints",
+      value: "session.checkpoint.list",
+      category: "Session",
+      slash: {
+        name: "checkpoints",
+        aliases: ["branches"],
+      },
+      onSelect: (dialog) => {
+        toast.show({ message: "Checkpoints: main (1 commit)", variant: "info" })
+        dialog.clear()
+      },
+    },
   ])
 
   const revertInfo = createMemo(() => session()?.revert)
