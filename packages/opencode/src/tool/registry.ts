@@ -32,6 +32,8 @@ import { DockerTool } from "./docker"
 import { NotionTool } from "./notion"
 import { TicketTool } from "./ticket"
 import { EmailTool } from "./email"
+import { StorybookTool } from "./storybook"
+import { BiTool } from "./bi"
 import { Flag } from "@/flag/flag"
 import { Log } from "@/util/log"
 import { LspTool } from "./lsp"
@@ -135,6 +137,8 @@ export namespace ToolRegistry {
       NotionTool,
       TicketTool,
       EmailTool,
+      StorybookTool,
+      BiTool,
       SkillTool,
       ApplyPatchTool,
       ...(Flag.OPENCODE_EXPERIMENTAL_LSP_TOOL ? [LspTool] : []),
