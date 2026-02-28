@@ -25,6 +25,7 @@ import { CodeSearchTool } from "./codesearch"
 import { BrowserTool } from "./browser"
 import { DatabaseTool } from "./database"
 import { FigmaTool } from "./figma"
+import { GithubTool } from "./github"
 import { Flag } from "@/flag/flag"
 import { Log } from "@/util/log"
 import { LspTool } from "./lsp"
@@ -121,6 +122,7 @@ export namespace ToolRegistry {
       BrowserTool,
       DatabaseTool,
       FigmaTool,
+      GithubTool,
       SkillTool,
       ApplyPatchTool,
       ...(Flag.OPENCODE_EXPERIMENTAL_LSP_TOOL ? [LspTool] : []),
