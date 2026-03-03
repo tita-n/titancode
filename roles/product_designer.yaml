@@ -42,8 +42,5 @@ allowed_tools:
   - email
   - slack
   - figma
-  - figma_read
-  - figma_comment
-  - figma_export
   - ticket_read
   - storybook

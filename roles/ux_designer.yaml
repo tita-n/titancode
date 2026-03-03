@@ -37,6 +37,4 @@ allowed_tools:
   - email
   - slack
   - figma
-  - figma_read
-  - figma_comment
   - task_management_read

@@ -50,9 +50,6 @@ allowed_tools:
   - email
   - slack
   - figma
-  - figma_read
-  - figma_export
-  - figma_comment
   - storybook
   - git
   - doc_generator
