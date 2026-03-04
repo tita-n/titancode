@@ -41,9 +41,9 @@ Use /build to exit a role and return to full tool access.`,
     async execute(params: any, ctx: any): Promise<{ title: string; metadata: Record<string, any>; output: string }> {
       const agent = params.agent
       const model = await getLastModel(ctx.sessionID)
-      const currentRole = await getCurrentRole(ctx.sessionID)
 
-      if (currentRole && agent === "build") {
+      // Always clear session permissions when switching to build
+      if (agent === "build") {
         await Session.setPermission({
           sessionID: ctx.sessionID,
           permission: [],
