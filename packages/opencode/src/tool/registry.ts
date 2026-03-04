@@ -43,6 +43,7 @@ import { SpreadsheetTool } from "./spreadsheet"
 import { VideoCallTool } from "./video_call"
 import { GitTool } from "./git"
 import { DocGeneratorTool } from "./doc_generator"
+import { MessagingTool } from "./messaging"
 import { TicketReadTool } from "./ticket_read"
 import { TicketWriteTool } from "./ticket_write"
 import { Flag } from "@/flag/flag"
@@ -159,6 +160,7 @@ export namespace ToolRegistry {
       VideoCallTool,
       GitTool,
       DocGeneratorTool,
+      MessagingTool,
       TicketReadTool,
       TicketWriteTool,
       SkillTool,
