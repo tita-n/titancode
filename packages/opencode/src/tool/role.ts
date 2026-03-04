@@ -131,12 +131,17 @@ Roles define what tools are available and how the agent behaves.`,
         const model = await getLastModel(ctx.sessionID)
 
         const permission: PermissionNext.Ruleset = [
+          { permission: "*", pattern: "*", action: "deny" as const },
           ...role.allowed_tools.map((tool) => ({ permission: tool, pattern: "*", action: "allow" as const })),
-          { permission: "*", pattern: "*", action: "deny" },
           { permission: "question", pattern: "*", action: "allow" },
           { permission: "role", pattern: "*", action: "allow" },
           { permission: "agent_switch", pattern: "*", action: "allow" },
         ]
+
+        await Session.setPermission({
+          sessionID: session.id,
+          permission,
+        })
 
         const userMsg: MessageV2.User = {
           id: Identifier.ascending("message"),
