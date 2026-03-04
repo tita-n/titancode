@@ -1,6 +1,20 @@
 import fs from "fs"
 import path from "path"
 
+function findRolesDir(): string | null {
+  let dir = process.cwd()
+  for (let i = 0; i < 5; i++) {
+    const rolesPath = path.join(dir, "roles")
+    if (fs.existsSync(rolesPath) && fs.statSync(rolesPath).isDirectory()) {
+      return rolesPath
+    }
+    const parent = path.dirname(dir)
+    if (parent === dir) break
+    dir = parent
+  }
+  return null
+}
+
 function parseYaml(content: string): Record<string, any> {
   const result: Record<string, any> = {}
   const lines = content.split("\n")
@@ -54,8 +68,8 @@ export interface Role {
 const roleCache = new Map<string, Role>()
 
 export async function loadRoles(): Promise<Role[]> {
-  const rolesDir = path.join(process.cwd(), "roles")
-  if (!fs.existsSync(rolesDir)) return []
+  const rolesDir = findRolesDir()
+  if (!rolesDir) return []
 
   const files = fs.readdirSync(rolesDir).filter((f) => f.endsWith(".yaml"))
   const roles: Role[] = []
