@@ -44,6 +44,11 @@ import { VideoCallTool } from "./video_call"
 import { GitTool } from "./git"
 import { DocGeneratorTool } from "./doc_generator"
 import { MessagingTool } from "./messaging"
+import { CrmTool } from "./crm"
+import { AnalyticsPlatformTool } from "./analytics_platform"
+import { HrisTool } from "./hris"
+import { PayrollTool } from "./payroll"
+import { ContractTool } from "./contract_tool"
 import { TicketReadTool } from "./ticket_read"
 import { TicketWriteTool } from "./ticket_write"
 import { Flag } from "@/flag/flag"
@@ -161,6 +166,11 @@ export namespace ToolRegistry {
       GitTool,
       DocGeneratorTool,
       MessagingTool,
+      CrmTool,
+      AnalyticsPlatformTool,
+      HrisTool,
+      PayrollTool,
+      ContractTool,
       TicketReadTool,
       TicketWriteTool,
       SkillTool,
