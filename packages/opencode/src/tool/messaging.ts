@@ -292,12 +292,44 @@ async function sendMessage(
       const sid = process.env.TWILIO_ACCOUNT_SID
       const token = process.env.TWILIO_AUTH_TOKEN
       const from = process.env.TWILIO_WHATSAPP_NUMBER
+      const baileysAuth = process.env.WHATSAPP_AUTH_DIR
 
+      // Use Baileys if auth directory is set
+      if (baileysAuth) {
+        try {
+          const { makeWASocket, useMultiFileAuthState } = await import("@whiskeysockets/baileys")
+          const { state, saveCreds } = await useMultiFileAuthState(baileysAuth)
+          const sock = makeWASocket({
+            auth: state,
+            printQRInTerminal: true,
+          })
+
+          sock.ev.on("creds.update", saveCreds)
+
+          // Send message
+          const jid = target.includes("@s.whatsapp.net") ? target : `${target}@s.whatsapp.net`
+          const result = await sock.sendMessage(jid, { text: message })
+
+          return {
+            title: "WhatsApp Sent (Baileys)",
+            metadata: { jid },
+            output: `✅ Sent via Baileys to ${target}:\n\n"${message}"`,
+          }
+        } catch (e: any) {
+          return {
+            title: "Baileys Error",
+            metadata: {},
+            output: `❌ Baileys error: ${e.message}\n\nMake sure @whiskeysockets/baileys is installed.`,
+          }
+        }
+      }
+
+      // Fall back to Twilio
       if (!sid || !token || !from) {
         return {
           title: "WhatsApp Not Configured",
           metadata: {},
-          output: `❌ Twilio not configured\n\nSet TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_NUMBER`,
+          output: `❌ Neither Baileys nor Twilio configured.\n\nOptions:\n1. Baileys (free): Set WHATSAPP_AUTH_DIR="/path/to/auth"\n2. Twilio: Set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_NUMBER`,
         }
       }
 
