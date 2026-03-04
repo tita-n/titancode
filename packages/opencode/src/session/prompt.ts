@@ -769,11 +769,15 @@ export namespace SessionPrompt {
         }
       },
       async ask(req) {
+        // If session has custom permissions (from role), use ONLY those
+        const ruleset = input.session.permission && input.session.permission.length > 0
+          ? input.session.permission
+          : PermissionNext.merge(input.agent.permission, input.session.permission ?? [])
         await PermissionNext.ask({
           ...req,
           sessionID: input.session.id,
           tool: { messageID: input.processor.message.id, callID: options.toolCallId },
-          ruleset: PermissionNext.merge(input.agent.permission, input.session.permission ?? []),
+          ruleset,
         })
       },
     })
