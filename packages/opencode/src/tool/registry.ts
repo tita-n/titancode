@@ -49,6 +49,12 @@ import { AnalyticsPlatformTool } from "./analytics_platform"
 import { HrisTool } from "./hris"
 import { PayrollTool } from "./payroll"
 import { ContractTool } from "./contract_tool"
+import { CodeExecTool } from "./code_exec"
+import { TerminalTool } from "./terminal"
+import { DebuggerTool } from "./debugger"
+import { PackageManagerTool } from "./package_manager"
+import { KubernetesTool } from "./kubernetes"
+import { CiCdTool } from "./ci_cd"
 import { TicketReadTool } from "./ticket_read"
 import { TicketWriteTool } from "./ticket_write"
 import { Flag } from "@/flag/flag"
@@ -171,6 +177,12 @@ export namespace ToolRegistry {
       HrisTool,
       PayrollTool,
       ContractTool,
+      CodeExecTool,
+      TerminalTool,
+      DebuggerTool,
+      PackageManagerTool,
+      KubernetesTool,
+      CiCdTool,
       TicketReadTool,
       TicketWriteTool,
       SkillTool,
