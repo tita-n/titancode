@@ -27,8 +27,6 @@ allowed_tools:
   - calendar
   - email
   - slack
-  - bash
-  - glob
   - ticket_read
   - ticket_write
   - log_read

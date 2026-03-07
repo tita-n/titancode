@@ -49,8 +49,6 @@ allowed_tools:
   - browser
   - email
   - slack
-  - bash
-  - glob
   - figma
   - storybook
   - git

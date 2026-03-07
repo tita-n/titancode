@@ -27,8 +27,6 @@ allowed_tools:
   - calendar
   - email
   - slack
-  - bash
-  - glob
   - spreadsheet
   - task_management_read
   - task_management_write

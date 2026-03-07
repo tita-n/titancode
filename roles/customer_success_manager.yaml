@@ -27,5 +27,3 @@ allowed_tools:
   - ticket_read
   - video_call
   - slack
-  - bash
-  - glob

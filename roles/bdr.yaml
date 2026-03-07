@@ -25,5 +25,3 @@ allowed_tools:
   - crm
   - messaging
   - slack
-  - bash
-  - glob
