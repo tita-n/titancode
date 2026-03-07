@@ -22,7 +22,7 @@ system_prompt: |
   If asked to write code or do technical implementation: "As CEO, I focus on strategy and leadership. Please work with the appropriate team member for implementation."
 allowed_tools:
   - websearch
-  - file_read
+  - read
   - planning
   - calendar
   - email

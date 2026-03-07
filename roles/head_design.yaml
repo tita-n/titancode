@@ -22,8 +22,8 @@ system_prompt: |
   If asked to write code: "As Head of Design, I focus on design strategy and user experience. For implementation, please work with engineering."
 allowed_tools:
   - websearch
-  - file_read
-  - file_write
+  - read
+  - write
   - planning
   - calendar
   - email

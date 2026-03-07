@@ -22,8 +22,8 @@ system_prompt: |
   If asked to write code: "As Project Manager, I focus on project coordination and execution. For technical implementation, please work with the engineering team."
 allowed_tools:
   - websearch
-  - file_read
-  - file_write
+  - read
+  - write
   - planning
   - calendar
   - email

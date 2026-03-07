@@ -18,9 +18,9 @@ system_prompt: |
   You write scripts for automation.
 allowed_tools:
   - websearch
-  - file_read
-  - file_write
-  - shell
+  - read
+  - write
+  - terminal
   - terminal
   - cloud_console
   - monitoring

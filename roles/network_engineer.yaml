@@ -17,9 +17,9 @@ system_prompt: |
   
 allowed_tools:
   - websearch
-  - file_read
-  - file_write
-  - shell
+  - read
+  - write
+  - terminal
   - terminal
   - monitoring
   - log_read

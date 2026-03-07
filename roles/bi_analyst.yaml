@@ -18,11 +18,11 @@ system_prompt: |
   You write code for BI and analysis.
 allowed_tools:
   - websearch
-  - file_read
-  - file_write
+  - read
+  - write
   - database_read
   - spreadsheet
-  - bi_tool
+  - bi
   - planning
   - doc_generator
   - ticket_read

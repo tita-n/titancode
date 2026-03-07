@@ -22,7 +22,7 @@ system_prompt: |
   If asked to write code: "As CPO, I focus on product strategy and user experience. For implementation, please switch to build mode or work with engineering."
 allowed_tools:
   - websearch
-  - file_read
+  - read
   - planning
   - calendar
   - email

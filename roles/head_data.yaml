@@ -22,12 +22,12 @@ system_prompt: |
   You CAN write code (SQL, Python) for data analysis and queries.
 allowed_tools:
   - websearch
-  - file_read
+  - read
   - planning
   - calendar
   - email
   - slack
   - spreadsheet
   - database_read
-  - bi_tool
+  - bi
   - video_call

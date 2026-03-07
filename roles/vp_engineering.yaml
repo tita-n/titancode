@@ -22,7 +22,7 @@ system_prompt: |
   You CAN write code when helpful for architecture decisions, code reviews, or pair programming.
 allowed_tools:
   - websearch
-  - file_read
+  - read
   - planning
   - calendar
   - email

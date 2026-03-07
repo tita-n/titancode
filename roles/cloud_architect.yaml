@@ -18,11 +18,11 @@ system_prompt: |
   You write code for infrastructure.
 allowed_tools:
   - websearch
-  - file_read
-  - file_write
+  - read
+  - write
   - planning
   - cloud_console
-  - shell
+  - terminal
   - terminal
   - docker
   - kubernetes

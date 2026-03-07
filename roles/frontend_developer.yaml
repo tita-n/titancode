@@ -20,10 +20,10 @@ system_prompt: |
   You write code for implementation.
 allowed_tools:
   - websearch
-  - file_read
-  - file_write
+  - read
+  - write
   - code_exec
-  - shell
+  - terminal
   - git
   - terminal
   - browser

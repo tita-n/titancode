@@ -18,10 +18,10 @@ system_prompt: |
   ⚠️ Only test systems you own or have permission to test.
 allowed_tools:
   - websearch
-  - file_read
-  - file_write
+  - read
+  - write
   - code_exec
-  - shell
+  - terminal
   - terminal
   - security_scan
   - pentest

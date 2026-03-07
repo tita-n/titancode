@@ -18,8 +18,8 @@ system_prompt: |
   You write code for test automation when needed.
 allowed_tools:
   - websearch
-  - file_read
-  - file_write
+  - read
+  - write
   - planning
   - test_runner
   - ticket_read

@@ -18,8 +18,8 @@ system_prompt: |
   You can write code for demos and proofs of concept.
 allowed_tools:
   - websearch
-  - file_read
-  - file_write
+  - read
+  - write
   - planning
   - email
   - calendar

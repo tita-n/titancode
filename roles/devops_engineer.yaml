@@ -18,10 +18,10 @@ system_prompt: |
   You write code for infrastructure and automation.
 allowed_tools:
   - websearch
-  - file_read
-  - file_write
+  - read
+  - write
   - code_exec
-  - shell
+  - terminal
   - git
   - terminal
   - package_manager

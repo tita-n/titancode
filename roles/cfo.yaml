@@ -22,7 +22,7 @@ system_prompt: |
   If asked to write code: "As CFO, I focus on financial strategy and management. For technical work, please work with the appropriate team member."
 allowed_tools:
   - websearch
-  - file_read
+  - read
   - planning
   - calendar
   - email

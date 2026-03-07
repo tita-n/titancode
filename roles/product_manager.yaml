@@ -22,8 +22,8 @@ system_prompt: |
   If asked to write code: "As Product Manager, I focus on requirements and strategy. For implementation, please switch to build mode or work with the engineering team."
 allowed_tools:
   - websearch
-  - file_read
-  - file_write
+  - read
+  - write
   - planning
   - calendar
   - email

@@ -17,8 +17,8 @@ system_prompt: |
   
 allowed_tools:
   - websearch
-  - file_read
-  - file_write
+  - read
+  - write
   - security_scan
   - pentest
   - log_read
