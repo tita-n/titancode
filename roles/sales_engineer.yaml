@@ -29,3 +29,5 @@ allowed_tools:
   - crm
   - video_call
   - slack
+  - bash
+  - glob
