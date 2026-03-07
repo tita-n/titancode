@@ -97,6 +97,7 @@ export const useSessionCommands = (actions: SessionCommandContext) => {
   const mcpCommand = withCategory(language.t("command.category.mcp"))
   const agentCommand = withCategory(language.t("command.category.agent"))
   const permissionsCommand = withCategory(language.t("command.category.permissions"))
+  const roleCommand = withCategory("Role")
 
   const sessionCommands = createMemo(() => [
     sessionCommand({
@@ -282,6 +283,27 @@ export const useSessionCommands = (actions: SessionCommandContext) => {
             ? language.t("toast.permissions.autoaccept.on.description")
             : language.t("toast.permissions.autoaccept.off.description"),
         })
+      },
+    }),
+  ])
+
+  const roleCommands = createMemo(() => [
+    roleCommand({
+      id: "role.list",
+      title: "List Roles",
+      description: "Show all available roles",
+      slash: "role",
+      onSelect: () => {
+        prompt.set([{ type: "text", content: "/role list", start: 0, end: 9 }], 9)
+      },
+    }),
+    roleCommand({
+      id: "role.exit",
+      title: "Exit Role",
+      description: "Exit current role and return to default",
+      slash: "role exit",
+      onSelect: () => {
+        prompt.set([{ type: "text", content: "/role exit", start: 0, end: 10 }], 10)
       },
     }),
   ])
@@ -487,6 +509,7 @@ export const useSessionCommands = (actions: SessionCommandContext) => {
       messageCommands(),
       agentCommands(),
       permissionCommands(),
+      roleCommands(),
       sessionActionCommands(),
       shareCommands(),
     ].flatMap((x) => x),
