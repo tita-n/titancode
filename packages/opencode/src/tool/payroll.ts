@@ -1,5 +1,8 @@
 import z from "zod"
 import { Tool } from "./tool"
+import { Log } from "../util/log"
+
+const logger = Log.create({ service: "payroll" })
 
 const PAYROLL_PROVIDERS = {
   adp: {
@@ -27,6 +30,54 @@ const PAYROLL_PROVIDERS = {
     description: "Global payroll",
     envVars: ["REMOTE_API_KEY"],
   },
+}
+
+async function gustoRequest(endpoint: string, options: RequestInit = {}): Promise<any> {
+  const clientId = process.env.GUSTO_CLIENT_ID
+  const clientSecret = process.env.GUSTO_CLIENT_SECRET
+
+  if (!clientId || !clientSecret) {
+    throw new Error("GUSTO_CLIENT_ID and GUSTO_CLIENT_SECRET required")
+  }
+
+  const response = await fetch(`https://api.gusto.com/api/v1${endpoint}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+  if (!response.ok) {
+    const error = await response.text()
+    throw new Error(`Gusto API error: ${response.status} - ${error}`)
+  }
+
+  return response.json()
+}
+
+async function remoteRequest(endpoint: string, options: RequestInit = {}): Promise<any> {
+  const apiKey = process.env.REMOTE_API_KEY
+
+  if (!apiKey) {
+    throw new Error("REMOTE_API_KEY required")
+  }
+
+  const response = await fetch(`https://api.remote.com/api/v1${endpoint}`, {
+    ...options,
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+  if (!response.ok) {
+    const error = await response.text()
+    throw new Error(`Remote API error: ${response.status} - ${error}`)
+  }
+
+  return response.json()
 }
 
 export const PayrollTool = Tool.define("payroll", async () => {
@@ -68,31 +119,36 @@ Set environment variables for your payroll provider.`,
     async execute(params: any): Promise<{ title: string; metadata: Record<string, any>; output: string }> {
       const provider = params.provider || process.env.PAYROLL_DEFAULT_PROVIDER || "gusto"
 
-      if (params.action === "status") {
-        return getStatus()
-      }
+      try {
+        if (params.action === "status") {
+          return getStatus()
+        }
 
-      if (params.action === "run_payroll") {
-        return await runPayroll(provider, params)
-      }
+        if (params.action === "run_payroll") {
+          return await runPayroll(provider, params)
+        }
 
-      if (params.action === "get_payslip") {
-        return await getPayslip(provider, params)
-      }
+        if (params.action === "get_payslip") {
+          return await getPayslip(provider, params)
+        }
 
-      if (params.action === "get_summary") {
-        return await getSummary(provider, params)
-      }
+        if (params.action === "get_summary") {
+          return await getSummary(provider, params)
+        }
 
-      if (params.action === "get_tax_report") {
-        return await getTaxReport(provider, params)
-      }
+        if (params.action === "get_tax_report") {
+          return await getTaxReport(provider, params)
+        }
 
-      if (params.action === "get_employee_compensation") {
-        return await getCompensation(provider, params)
-      }
+        if (params.action === "get_employee_compensation") {
+          return await getCompensation(provider, params)
+        }
 
-      return { title: "Payroll", metadata: {}, output: `Action ${params.action} not implemented` }
+        return { title: "Payroll", metadata: {}, output: `Action ${params.action} not implemented` }
+      } catch (error: any) {
+        logger.error("Payroll error", { error: error.message, provider, action: params.action })
+        return { title: "Payroll Error", metadata: { provider }, output: `Error: ${error.message}` }
+      }
     },
   }
 })
@@ -109,60 +165,246 @@ function getStatus(): { title: string; metadata: Record<string, any>; output: st
   const status = checks.map((c) => {
     const configured = c.vars.some((v) => process.env[v])
     return `  ${c.name}: ${configured ? "✅" : "❌"}`
-  })
+  }).join("\n")
 
   return {
     title: "Payroll Status",
     metadata: {},
-    output: `Configured Providers:\n\n${status.join("\n")}\n\nSet PAYROLL_DEFAULT_PROVIDER to change default.`,
+    output: `Configured Providers:\n\n${status}\n\nSet PAYROLL_DEFAULT_PROVIDER to change default.`,
   }
 }
 
 async function runPayroll(provider: string, params: any): Promise<{ title: string; metadata: Record<string, any>; output: string }> {
-  const startDate = params.start_date || "2026-02-01"
-  const endDate = params.end_date || "2026-02-15"
+  const startDate = params.start_date || new Date().toISOString().split("T")[0]
+  const endDate = params.end_date || startDate
 
-  return {
-    title: "Payroll Processing",
-    metadata: { startDate, endDate, provider },
-    output: `Payroll Run - ${startDate} to ${endDate}\n\nEmployees: 12\nTotal Gross: $78,450.00\nTotal Taxes: $18,432.50\nTotal Deductions: $8,234.00\nNet Pay: $51,783.50\n\nStatus: Pending Approval\n\n✅ Ready to submit\n\nSet API keys for real payroll processing.`,
+  switch (provider) {
+    case "gusto": {
+      try {
+        const data = await gustoRequest(`/payrolls?start_date=${startDate}&end_date=${endDate}`)
+
+        const payrolls = data.results || []
+        if (!payrolls.length) {
+          return {
+            title: "Payroll Run",
+            metadata: { startDate, endDate, provider },
+            output: `No payroll found for period ${startDate} to ${endDate}`,
+          }
+        }
+
+        const latest = payrolls[0]
+        return {
+          title: "Payroll Run",
+          metadata: { payrollId: latest.id, provider },
+          output: `Payroll Period: ${startDate} to ${endDate}\n\nStatus: ${latest.status || "unknown"}\nTotal Gross: $${latest.gross_pay || 0}\nTotal Net: $${latest.net_pay || 0}\n\nEmployees: ${latest.employee_count || payrolls.length}`,
+        }
+      } catch (error: any) {
+        return { title: "Gusto Error", metadata: {}, output: `API Error: ${error.message}` }
+      }
+    }
+
+    case "remote": {
+      try {
+        const data = await remoteRequest(`/payrolls?start_date=${startDate}&end_date=${endDate}`)
+
+        const payrolls = data.data || []
+        if (!payrolls.length) {
+          return {
+            title: "Payroll Run",
+            metadata: { startDate, endDate, provider },
+            output: `No payroll found for period`,
+          }
+        }
+
+        return {
+          title: "Payroll Run",
+          metadata: { provider },
+          output: `Found ${payrolls.length} payroll runs for period`,
+        }
+      } catch (error: any) {
+        return { title: "Remote Error", metadata: {}, output: `API Error: ${error.message}` }
+      }
+    }
+
+    default:
+      return {
+        title: "Payroll Processing",
+        metadata: { startDate, endDate, provider },
+        output: `Payroll Run - ${startDate} to ${endDate}\n\nEmployees: 12\nTotal Gross: $78,450.00\nTotal Taxes: $18,432.50\nTotal Deductions: $8,234.00\nNet Pay: $51,783.50\n\nStatus: Pending Approval\n\nSet API keys for real payroll processing.`,
+      }
   }
 }
 
 async function getPayslip(provider: string, params: any): Promise<{ title: string; metadata: Record<string, any>; output: string }> {
-  const employeeId = params.employee_id || "EMP001"
-  const payPeriod = params.pay_period || "Feb 2026"
+  const employeeId = params.employee_id
+  const payPeriod = params.pay_period || new Date().toISOString().slice(0, 7)
 
-  return {
-    title: "Payslip",
-    metadata: { employeeId, payPeriod },
-    output: `Payslip - ${payPeriod}\n\nEmployee: John Smith (${employeeId})\nEmployee ID: 12345\nDepartment: Engineering\n\nEarnings:\n  Regular Pay: $4,615.38\n  Overtime: $346.15\n  Bonus: $500.00\n  ────────────────\n  Gross Pay: $5,461.53\n\nTaxes:\n  Federal: $876.23\n  State: $218.46\n  Social Security: $338.61\n  Medicare: $79.19\n  ────────────────\n  Total Taxes: $1,512.49\n\nDeductions:\n  Health Insurance: $156.00\n  401(k): $273.08\n  ────────────────\n  Total Deductions: $429.08\n\nNet Pay: $3,519.96\n\nSet API keys for real payslips.`,
+  if (!employeeId) {
+    return { title: "Error", metadata: {}, output: "Please provide employee_id parameter" }
+  }
+
+  switch (provider) {
+    case "gusto": {
+      try {
+        const data = await gustoRequest(`/employees/${employeeId}/paystubs?start_date=${payPeriod}-01`)
+
+        const paystubs = data.results || []
+        if (!paystubs.length) {
+          return { title: "Payslip", metadata: {}, output: "No paystub found for this period" }
+        }
+
+        const ps = paystubs[0]
+        return {
+          title: "Payslip",
+          metadata: { employeeId, payPeriod, provider },
+          output: `Payslip - ${payPeriod}\n\nGross Pay: $${ps.gross_pay || 0}\nNet Pay: $${ps.net_pay || 0}\nPay Date: ${ps.pay_period?.end || "N/A"}`,
+        }
+      } catch (error: any) {
+        return { title: "Gusto Error", metadata: {}, output: `API Error: ${error.message}` }
+      }
+    }
+
+    case "remote": {
+      try {
+        const data = await remoteRequest(`/employees/${employeeId}/payrolls`)
+
+        const runs = data.data || []
+        if (!runs.length) {
+          return { title: "Payslip", metadata: {}, output: "No payroll found" }
+        }
+
+        const latest = runs[0]
+        return {
+          title: "Payslip",
+          metadata: { employeeId, provider },
+          output: `Latest Payroll:\n\nGross: $${latest.gross_pay || 0}\nNet: $${latest.net_pay || 0}\nDate: ${latest.period_end || "N/A"}`,
+        }
+      } catch (error: any) {
+        return { title: "Remote Error", metadata: {}, output: `API Error: ${error.message}` }
+      }
+    }
+
+    default:
+      return {
+        title: "Payslip",
+        metadata: { employeeId, payPeriod },
+        output: `Payslip - ${payPeriod}\n\nEmployee ID: ${employeeId}\n\nEarnings:\n  Regular Pay: $4,615.38\n  Bonus: $500.00\n  ────────────────\n  Gross Pay: $5,115.38\n\nTaxes: $1,200.00\nDeductions: $429.00\n\nNet Pay: $3,486.38\n\nSet API keys for real payslips.`,
+      }
   }
 }
 
 async function getSummary(provider: string, params: any): Promise<{ title: string; metadata: Record<string, any>; output: string }> {
-  return {
-    title: "Payroll Summary",
-    metadata: { provider },
-    output: `Payroll Summary - February 2026 (Pay Period 2)\n\n| Category | Amount |\n|----------|--------|\n| Gross Pay | $78,450.00 |\n| Federal Tax | $12,450.00 |\n| State Tax | $3,450.00 |\n| Social Security | $4,864.00 |\n| Medicare | $1,137.00 |\n| 401(k) Contributions | $3,922.50 |\n| Health Insurance | $1,872.00 |\n| ──────────────── |\n| Total Deductions | $27,695.50 |\n| Net Pay | $50,754.50 |\n\nEmployees: 12\nHours Worked: 1,840\nOvertime Hours: 45\n\nSet API keys for real summary.`,
+  const period = params.pay_period || new Date().toISOString().slice(0, 7)
+
+  switch (provider) {
+    case "gusto": {
+      try {
+        const data = await gustoRequest(`/payrolls?start_date=${period}-01`)
+
+        const payrolls = data.results || []
+        if (!payrolls.length) {
+          return { title: "Payroll Summary", metadata: {}, output: "No payroll data found" }
+        }
+
+        let totalGross = 0
+        let totalNet = 0
+        let totalTaxes = 0
+
+        payrolls.forEach((p: any) => {
+          totalGross += parseFloat(p.gross_pay || 0)
+          totalNet += parseFloat(p.net_pay || 0)
+          totalTaxes += parseFloat(p.taxes || 0)
+        })
+
+        return {
+          title: "Payroll Summary",
+          metadata: { period, employeeCount: payrolls.length, provider },
+          output: `Payroll Summary - ${period}\n\nEmployees: ${payrolls.length}\nTotal Gross: $${totalGross.toFixed(2)}\nTotal Taxes: $${totalTaxes.toFixed(2)}\nTotal Net: $${totalNet.toFixed(2)}`,
+        }
+      } catch (error: any) {
+        return { title: "Gusto Error", metadata: {}, output: `API Error: ${error.message}` }
+      }
+    }
+
+    default:
+      return {
+        title: "Payroll Summary",
+        metadata: { provider },
+        output: `Payroll Summary - ${period}\n\n| Category | Amount |\n|----------|--------|\n| Gross Pay | $78,450.00 |\n| Federal Tax | $12,450.00 |\n| State Tax | $3,450.00 |\n| Social Security | $4,864.00 |\n| Medicare | $1,137.00 |\n| ──────────────── |\n| Total Deductions | $27,695.50 |\n| Net Pay | $50,754.50 |\n\nEmployees: 12\n\nSet API keys for real summary.`,
+      }
   }
 }
 
 async function getTaxReport(provider: string, params: any): Promise<{ title: string; metadata: Record<string, any>; output: string }> {
-  return {
-    title: "Tax Report",
-    metadata: { provider },
-    output: `Tax Report - February 2026\n\nFederal Tax Liabilities:\n  Withheld: $12,450.00\n  Due: $12,450.00\n  Status: ✅ Paid\n\nState Tax Liabilities:\n  Withheld: $3,450.00\n  Due: $3,450.00\n  Status: ✅ Paid\n\nFICA:\n  Social Security: $4,864.00\n  Medicare: $1,137.00\n  ────────────────\n  Total FICA: $6,001.00\n\nYear-to-Date:\n  Federal: $24,900.00\n  State: $6,900.00\n  Social Security: $9,728.00\n  Medicare: $2,274.00\n\nSet API keys for real tax reports.`,
+  const period = params.pay_period || new Date().toISOString().slice(0, 7)
+
+  switch (provider) {
+    case "gusto": {
+      try {
+        const data = await gustoRequest(`/payrolls/taxes?start_date=${period}-01`)
+
+        return {
+          title: "Tax Report",
+          metadata: { period, provider },
+          output: `Tax Report - ${period}\n\nFederal Withheld: $${data.federal_withholding || 0}\nState Withheld: $${data.state_withholding || 0}\nFICA: $${data.fica || 0}\nMedicare: $${data.medicare || 0}`,
+        }
+      } catch (error: any) {
+        return { title: "Gusto Error", metadata: {}, output: `API Error: ${error.message}` }
+      }
+    }
+
+    default:
+      return {
+        title: "Tax Report",
+        metadata: { period, provider },
+        output: `Tax Report - ${period}\n\nFederal Tax: $12,450.00\nState Tax: $3,450.00\nSocial Security: $4,864.00\nMedicare: $1,137.00\n\nStatus: Paid\n\nSet API keys for real tax reports.`,
+      }
   }
 }
 
 async function getCompensation(provider: string, params: any): Promise<{ title: string; metadata: Record<string, any>; output: string }> {
-  const employeeId = params.employee_id || "EMP001"
-  const salary = params.salary || 120000
+  const employeeId = params.employee_id
 
-  return {
-    title: "Employee Compensation",
-    metadata: { employeeId },
-    output: `Compensation - Employee ${employeeId}\n\nBase Salary: $${salary.toLocaleString()}/year\n($${(salary / 26).toFixed(2)}/pay period)\n\nAdditional Compensation:\n  • Target Bonus: 15% ($18,000)\n  • Equity: 500 RSUs (4-year vest)\n\nDeductions (per pay period):\n  • Health Insurance: $156.00\n  • 401(k): 6% match ($273.08)\n  • FSA: $50.00\n\nTotal Compensation:\n  Cash: $138,000\n  Equity: ~$75,000\n  Benefits: ~$8,000\n  ────────────────\n  Total: ~$221,000\n\nSet API keys for real compensation data.`,
+  if (!employeeId) {
+    return { title: "Error", metadata: {}, output: "Please provide employee_id parameter" }
+  }
+
+  switch (provider) {
+    case "gusto": {
+      try {
+        const data = await gustoRequest(`/employees/${employeeId}`)
+
+        const emp = data
+        return {
+          title: "Employee Compensation",
+          metadata: { employeeId, provider },
+          output: `Compensation - ${emp.first_name} ${emp.last_name}\n\nBase Salary: $${emp.salary || 0}\nPay Type: ${emp.pay_type || "salary"}\nPay Frequency: ${emp.pay_frequency || "bi-weekly"}\nHire Date: ${emp.hire_date || "N/A"}`,
+        }
+      } catch (error: any) {
+        return { title: "Gusto Error", metadata: {}, output: `API Error: ${error.message}` }
+      }
+    }
+
+    case "remote": {
+      try {
+        const data = await remoteRequest(`/employees/${employeeId}`)
+
+        const emp = data
+        return {
+          title: "Employee Compensation",
+          metadata: { employeeId, provider },
+          output: `Compensation - ${emp.name}\n\nSalary: $${emp.salary || 0}\nCurrency: ${emp.currency || "USD"}\nEmployment Type: ${emp.employment_type || "full-time"}`,
+        }
+      } catch (error: any) {
+        return { title: "Remote Error", metadata: {}, output: `API Error: ${error.message}` }
+      }
+    }
+
+    default:
+      return {
+        title: "Employee Compensation",
+        metadata: { employeeId, provider },
+        output: `Compensation - Employee ${employeeId}\n\nBase Salary: $120,000/year\n\nAdditional:\n  • Bonus: 15% target\n  • Equity: 500 RSUs\n\nDeductions per pay period:\n  • Health: $156\n  • 401(k): 6%\n\nSet API keys for real compensation.`,
+      }
   }
 }

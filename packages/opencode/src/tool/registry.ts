@@ -63,6 +63,15 @@ import { LspTool } from "./lsp"
 import { Truncate } from "./truncation"
 
 import { ApplyPatchTool } from "./apply_patch"
+import { CloudConsoleTool } from "./cloud_console"
+import { DeploymentTool } from "./deployment"
+import { MonitoringTool } from "./monitoring"
+import { LogReadTool } from "./log_read"
+import { SecurityScanTool } from "./security_scan"
+import { TestRunnerTool } from "./test_runner"
+import { NotebookTool } from "./notebook"
+import { ApiClientTool } from "./api_client"
+import { PentestTool } from "./pentest"
 import { Glob } from "../util/glob"
 import { pathToFileURL } from "url"
 
@@ -186,6 +195,15 @@ export namespace ToolRegistry {
       TicketReadTool,
       TicketWriteTool,
       SkillTool,
+      CloudConsoleTool,
+      DeploymentTool,
+      MonitoringTool,
+      LogReadTool,
+      SecurityScanTool,
+      TestRunnerTool,
+      NotebookTool,
+      ApiClientTool,
+      PentestTool,
       ApplyPatchTool,
       ...(Flag.OPENCODE_EXPERIMENTAL_LSP_TOOL ? [LspTool] : []),
       ...(config.experimental?.batch_tool === true ? [BatchTool] : []),
