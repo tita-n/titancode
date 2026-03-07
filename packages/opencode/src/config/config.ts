@@ -230,6 +230,13 @@ export namespace Config {
       result.compaction = { ...result.compaction, prune: false }
     }
 
+    // Apply environment variables from config
+    if (result.env) {
+      for (const [key, value] of Object.entries(result.env)) {
+        process.env[key] = value
+      }
+    }
+
     result.plugin = deduplicatePlugins(result.plugin ?? [])
 
     return {
@@ -1146,6 +1153,10 @@ export namespace Config {
             .describe("Token buffer for compaction. Leaves enough window to avoid overflow during compaction."),
         })
         .optional(),
+      env: z
+        .record(z.string(), z.string())
+        .optional()
+        .describe("Environment variables and API keys for tools. Set your API keys here (e.g., HUBSPOT_ACCESS_TOKEN, OPENAI_API_KEY, etc.)"),
       experimental: z
         .object({
           disable_paste_summary: z.boolean().optional(),
