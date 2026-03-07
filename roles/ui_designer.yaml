@@ -37,6 +37,8 @@ allowed_tools:
   - browser
   - email
   - slack
+  - bash
+  - glob
   - figma
   - storybook
   - task_management_read

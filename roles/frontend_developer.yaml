@@ -33,3 +33,5 @@ allowed_tools:
   - ticket_write
   - storybook
   - slack
+  - bash
+  - glob

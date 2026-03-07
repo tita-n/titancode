@@ -28,6 +28,8 @@ allowed_tools:
   - calendar
   - email
   - slack
+  - bash
+  - glob
   - ticket_read
   - figma
   - video_call

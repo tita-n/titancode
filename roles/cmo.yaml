@@ -27,6 +27,8 @@ allowed_tools:
   - calendar
   - email
   - slack
+  - bash
+  - glob
   - spreadsheet
   - analytics_platform
   - video_call

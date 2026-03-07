@@ -33,3 +33,5 @@ allowed_tools:
   - cloud_console
   - ticket_read
   - slack
+  - bash
+  - glob

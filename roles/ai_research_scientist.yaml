@@ -29,3 +29,5 @@ allowed_tools:
   - cloud_console
   - planning
   - slack
+  - bash
+  - glob

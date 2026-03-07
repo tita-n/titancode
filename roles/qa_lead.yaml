@@ -28,3 +28,5 @@ allowed_tools:
   - task_management_read
   - task_management_write
   - slack
+  - bash
+  - glob

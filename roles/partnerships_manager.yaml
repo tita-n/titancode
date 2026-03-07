@@ -27,3 +27,5 @@ allowed_tools:
   - contract_tool
   - video_call
   - slack
+  - bash
+  - glob

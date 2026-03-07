@@ -35,3 +35,5 @@ allowed_tools:
   - database_read
   - ticket_read
   - slack
+  - bash
+  - glob

@@ -30,3 +30,5 @@ allowed_tools:
   - ticket_read
   - monitoring
   - slack
+  - bash
+  - glob

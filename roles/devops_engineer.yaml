@@ -35,3 +35,5 @@ allowed_tools:
   - ticket_read
   - ticket_write
   - slack
+  - bash
+  - glob

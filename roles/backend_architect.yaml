@@ -31,3 +31,5 @@ allowed_tools:
   - ticket_read
   - package_manager
   - slack
+  - bash
+  - glob

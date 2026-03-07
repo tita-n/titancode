@@ -24,3 +24,5 @@ allowed_tools:
   - ticket_write
   - log_read
   - slack
+  - bash
+  - glob

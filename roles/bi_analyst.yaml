@@ -27,3 +27,5 @@ allowed_tools:
   - doc_generator
   - ticket_read
   - slack
+  - bash
+  - glob

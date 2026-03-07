@@ -31,3 +31,5 @@ allowed_tools:
   - planning
   - ticket_read
   - slack
+  - bash
+  - glob
